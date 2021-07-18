@@ -29,6 +29,14 @@ mod rllib {
         }
 
     }
+    impl std::cmp::PartialEq<Action<i32>> for Action<i32> {
+        fn eq(&self, other: &Self) -> bool {
+            self.action_id == other.action_id
+        }
+        fn ne(&self, other: &Self) -> bool {
+            self.action_id != other.action_id
+        }
+    } 
     
 
 
