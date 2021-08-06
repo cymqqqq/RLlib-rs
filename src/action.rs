@@ -127,7 +127,19 @@ mod rllib {
         }
 
     }
-
+    pub struct Actions<T> {
+        actions: Vec<Box<Action<T>>>,
+    }
+    pub struct ActionArr<T> {
+        Base: Actions<T>,
+    }
+    pub trait ActionsTrait<T> {
+        fn dimension(&self) -> i32;
+        fn get_entry(&self,idx: usize) -> Box<Action<T>>;
+        fn push_back(&mut self, idx: usize, val: T);
+        fn erase(&self, idx: i32);
+        fn update(&mut self, actionidx: usize, vectoridx: usize, val: T);
+    }
 
     
 }
