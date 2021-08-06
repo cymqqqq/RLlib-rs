@@ -140,6 +140,19 @@ mod rllib {
         fn erase(&self, idx: i32);
         fn update(&mut self, actionidx: usize, vectoridx: usize, val: T);
     }
-
+    impl ActionsTrait<f32> for ActionArr<f32> {
+        fn push_back(&mut self, idx: usize, val: f32) {
+            self.Base.actions[idx].push_back(val);
+        }
+        fn get_entry(&self, idx: usize) -> &Box<Action<f32>> {
+            return &self.Base.actions[idx];
+        }
+        fn dimension(&self) -> i32 {
+            return self.Base.actions.len() as i32;
+        }
+        fn update(&mut self, actionidx: usize, vectoridx: usize, val: f32) {
+            self.Base.actions[actionidx].update(vectoridx, val);
+        }
+    }
     
 }
