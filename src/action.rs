@@ -4,6 +4,7 @@ mod rllib {
         action_id: i32,
         values: Vec<T>,
     }
+
     pub trait ActionTrait<T> {
         fn push_back(&mut self, value: T);
         fn get_entry(&mut self, i: usize) -> T;
@@ -11,17 +12,17 @@ mod rllib {
         fn update(&mut self, i: usize, value: T);
         fn id(&self) -> i32;
     }
-    impl ActionTrait<u8> for Action<u8> {
-        fn push_back(&mut self, value: u8) {
+    impl<T> ActionTrait<T> for Action<T> {
+        fn push_back(&mut self, value: T) {
             self.values.push(value);
         }
-        fn get_entry(&mut self, i: usize) -> u8 {
+        fn get_entry(&mut self, i: usize) -> T {
             return self.values[i];
         }
         fn dim(&self) -> i32 {
             return self.values.len() as i32;
         }
-        fn update(&mut self, i: usize, value: u8) {
+        fn update(&mut self, i: usize, value: T) {
             self.values[i] = value;
         }
         fn id(&self) -> i32 {
@@ -29,7 +30,7 @@ mod rllib {
         }
 
     }
-    impl std::cmp::PartialEq<Action<i32>> for Action<i32> {
+    impl<T> std::cmp::PartialEq<Action<T>> for Action<T> {
         fn eq(&self, other: &Self) -> bool {
             self.action_id == other.action_id
         }
@@ -37,95 +38,35 @@ mod rllib {
             self.action_id != other.action_id
         }
     } 
-    impl ActionTrait<i32> for Action<i32> {
-        fn push_back(&mut self, value: i32) {
-            self.values.push(value);
-        }
-        fn get_entry(&mut self, i: usize) -> i32 {
-            return self.values[i];
-        }
-        fn dim(&self) -> i32 {
-            return self.values.len() as i32;
-        }
-        fn update(&mut self, i: usize, value: i32) {
-            self.values[i] = value;
-        }
-        fn id(&self) -> i32 {
-            return self.action_id;
-        }
-
+    
+    pub struct Actions<T> {
+        actions: Vec<Box<Action<T>>>,
     }
-    impl ActionTrait<f32> for Action<f32> {
-        fn push_back(&mut self, value: f32) {
-            self.values.push(value);
-        }
-        fn get_entry(&mut self, i: usize) -> f32 {
-            return self.values[i];
-        }
-        fn dim(&self) -> i32 {
-            return self.values.len() as i32;
-        }
-        fn update(&mut self, i: usize, value: f32) {
-            self.values[i] = value;
-        }
-        fn id(&self) -> i32 {
-            return self.action_id;
-        }
-
+    pub struct ActionArr<T> 
+    {
+        Base: Actions<T>,
     }
-    impl ActionTrait<f64> for Action<f64> {
-        fn push_back(&mut self, value: f64) {
-            self.values.push(value);
-        }
-        fn get_entry(&mut self, i: usize) -> f64 {
-            return self.values[i];
-        }
-        fn dim(&self) -> i32 {
-            return self.values.len() as i32;
-        }
-        fn update(&mut self, i: usize, value: f64) {
-            self.values[i] = value;
-        }
-        fn id(&self) -> i32 {
-            return self.action_id;
-        }
-
+    pub trait ActionsTrait<T> 
+    {
+        fn dimension(&self) -> i32;
+        fn get_entry(&self, idx: usize) -> &Box<Action<T>>;
+        fn push_back(&mut self, idx: usize, val: T);
+        //fn erase(&self, idx: i32);
+        fn update(&mut self, actionidx: usize, vectoridx: usize, val: T);
     }
-    impl ActionTrait<String> for Action<String> {
-        fn push_back(&mut self, value: String) {
-            self.values.push(value);
+    impl<T> ActionsTrait<T> for ActionArr<T> {
+        fn push_back(&mut self, idx: usize, val: T) {
+            self.Base.actions[idx].push_back(val);
         }
-        fn get_entry(&mut self, i: usize) -> String {
-            return self.values[i].clone();
+        fn get_entry(&self, idx: usize) -> &Box<Action<T>> {
+            return &self.Base.actions[idx];
         }
-        fn dim(&self) -> i32 {
-            return self.values.len() as i32;
+        fn dimension(&self) -> i32 {
+            return self.Base.actions.len() as i32;
         }
-        fn update(&mut self, i: usize, value: String) {
-            self.values[i] = value;
+        fn update(&mut self, actionidx: usize, vectoridx: usize, val: T) {
+            self.Base.actions[actionidx].update(vectoridx, val);
         }
-        fn id(&self) -> i32 {
-            return self.action_id;
-        }
-
-    }
-    impl ActionTrait<char> for Action<char> {
-        fn push_back(&mut self, value: char) {
-            self.values.push(value);
-        }
-        fn get_entry(&mut self, i: usize) -> char {
-            return self.values[i];
-        }
-        fn dim(&self) -> i32 {
-            return self.values.len() as i32;
-        }
-        fn update(&mut self, i: usize, value: char) {
-            self.values[i] = value;
-        }
-        fn id(&self) -> i32 {
-            return self.action_id;
-        }
-
     }
     pub struct Actions<T> {
         actions: Vec<Box<Action<T>>>,
