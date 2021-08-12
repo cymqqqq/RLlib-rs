@@ -1,3 +1,4 @@
+use std::ops::Index;
 mod rllib {
     pub struct Vector<T>(T);
     
@@ -16,26 +17,27 @@ mod rllib {
         fn empty(&self) -> bool;
         fn max_norm(&self) -> T;
         fn l1_norm(&self) -> T;
-        fn l2_norm(&self) -> T;
-        fn sum(&self) -> T;
-        fn get_values(&self) -> Box<T>;
+        //fn l2_norm(&self) -> T;
+        fn sum(&mut self) -> T;
+        fn get_values(&self) -> Vec<T>;
         fn get_entry(&self, idx: usize) -> T;
-        fn dot(&mut self, other: Box<Vector<T>>) -> T;
+        //fn dot(&mut self, other: Vector<T>) -> T;
+        fn get(&self, idx: usize) -> T;
         fn clear(&mut self);
-        fn set_entry(&mut self, idx: i32, val: T);
-        fn remove_entry(&mut self, idx: i32);
-        fn addToself(&mut self, val: T) -> Box<Vector<T>>;
-        fn substractToself(&mut self, other: Box<Vector<T>>) -> Box<Vector<T>>;
-        fn mapMultiplyToself(&mut self, factor: T) -> Box<Vector<T>>;
-        fn set(&mut self, other: Box<Vector<T>>) -> Box<Vector<T>>;
-        //fn set(&mut self, other: Box<Vector<T>>, offset: i32) -> Box<Vector<T>>;
-        //fn set(&mut self, val: T) -> Box<Vector<T>>;
+        fn set_entry(&mut self, idx: usize, val: T);
+        fn remove_entry(&mut self, idx: usize);
+        fn addToself(&mut self, val: T) -> Vec<T>;
+        //fn substractToself(&mut self, other: Vec<T>) -> Vec<T>;
+        fn mapMultiplyToself(&mut self, factor: T) -> Vec<T>;
+        //fn set(&mut self, other: Vec<T>) -> Vec<T>;
+        //fn set(&mut self, other: Vec<T>, offset: i32) -> Vec<T>;
+        fn set(&mut self, val: T) -> Vec<T>;
         //deep copy of vector
-        fn copy(&mut self) -> Box<Vector<T>>;
-        fn newInstance(&mut self, dim: i32) -> Box<Vector<T>>;
+        //fn copy(&mut self) -> Box<Vector<T>>;
+        //fn newInstance(&mut self, dim: i32) -> Box<Vector<T>>;
         //storage management
-        fn persist(&mut self, f: String);
-        fn resurrect(&mut self, f: String);
+        //fn persist(&mut self, f: String);
+        //fn resurrect(&mut self, f: String);
     }
     pub trait VectorTraitaddToself1<T> {
         fn addToself(&mut self, factor: T, other: Box<Vector<T>>) -> Box<Vector<T>>;
@@ -44,9 +46,17 @@ mod rllib {
         fn addToself(&mut self, other: Box<Vector<T>>) -> Box<Vector<T>>;
     }
     pub struct DenseVector<T> {
+        vecdata: Vector<T>,
         capacity: i32,
-        data: Box<T>,
+        data: Vec<T>,
     }
+    impl<T> Index<usize> for DenseVector<T> {
+        type Output = T;
+        fn index(&self, idx: usize) -> &T {
+            &self.get(idx)
+        }
+    }
+    
     impl VectorTrait<f32> for DenseVector<f32> {
         fn dimension(&self) -> i32 {
             return self.capacity;
