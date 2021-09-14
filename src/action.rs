@@ -39,13 +39,7 @@ mod rllib {
         }
     } 
     
-    pub struct Actions<T> {
-        actions: Vec<Box<Action<T>>>,
-    }
-    pub struct ActionArr<T> 
-    {
-        Base: Actions<T>,
-    }
+
     pub trait ActionsTrait<T> 
     {
         fn dimension(&self) -> i32;
@@ -72,27 +66,29 @@ mod rllib {
         actions: Vec<Box<Action<T>>>,
     }
     pub struct ActionArr<T> {
-        Base: Actions<T>,
+        base: Actions<T>,
     }
-    pub trait ActionsTrait<T> {
+    pub trait ActionsTrait<T>
+    where T: Clone,
+    {
         fn dimension(&self) -> i32;
         fn get_entry(&self,idx: usize) -> Box<Action<T>>;
         fn push_back(&mut self, idx: usize, val: T);
         fn erase(&self, idx: i32);
         fn update(&mut self, actionidx: usize, vectoridx: usize, val: T);
     }
-    impl ActionsTrait<f32> for ActionArr<f32> {
-        fn push_back(&mut self, idx: usize, val: f32) {
-            self.Base.actions[idx].push_back(val);
+    impl ActionsTrait<T> for ActionArr<T> {
+        fn push_back(&mut self, idx: usize, val: T) {
+            self.base.actions[idx].push_back(val);
         }
-        fn get_entry(&self, idx: usize) -> &Box<Action<f32>> {
-            return &self.Base.actions[idx];
+        fn get_entry(&self, idx: usize) -> &Box<Action<T>> {
+            return &self.base.actions[idx];
         }
         fn dimension(&self) -> i32 {
-            return self.Base.actions.len() as i32;
+            return self.base.actions.len() as i32;
         }
-        fn update(&mut self, actionidx: usize, vectoridx: usize, val: f32) {
-            self.Base.actions[actionidx].update(vectoridx, val);
+        fn update(&mut self, actionidx: usize, vectoridx: usize, val: T) {
+            self.base.actions[actionidx].update(vectoridx, val);
         }
     }
     
