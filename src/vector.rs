@@ -65,10 +65,10 @@ mod rllib {
         data: Vec<T>,
     }
     impl DenseVector<f32> {
-        fn new(capacity: usize, data: Vec<f32>) -> Self {
+        fn new(capacity: usize, data: Vec<T>) -> Self {
             Self {
                 capacity: 1usize,
-                data: vec![],
+                data: data.clone(),
             }
         }
     }
