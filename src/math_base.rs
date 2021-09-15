@@ -94,5 +94,32 @@ mod rllib {
             }
         }
         */
+        
+    }
+    pub struct Random {
+        xorshift: Xorshift,
+    }
+    impl Random {
+        fn new() -> Self {
+            Self {
+                xorshift: Xorshift::new(),
+            }
+        }
+    }
+    pub trait RandomTrait {
+        fn reseed(&mut self, seed: u32);
+        fn rnd(&mut self) -> u32;
+        fn nextint(&mut self, sz: i32) -> i32;
+    }
+    impl RandomTrait for Random {
+        fn reseed(&mut self, seed: u32) {
+            self.xorshift.reseed(seed);
+        }
+        fn rnd(&mut self) -> u32 {
+            return self.xorshift.rand_u32();
+        }
+        fn nextint(&mut self, sz: i32) -> i32 {
+            return self.rnd() as i32 % sz;
+        }
     }
 }
