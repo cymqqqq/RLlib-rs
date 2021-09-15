@@ -1,3 +1,4 @@
+use core::ptr;
 mod rllib {
     pub struct Xorshift {
         x: u32,
@@ -26,57 +27,71 @@ mod rllib {
     pub trait XorshiftTrait {
         fn reseed(&mut self, seed: u32);
         fn reseed_u64(&mut self, seed: u64);
-        fn mix(&mut self);
+        //fn mix(&mut self);
         fn rand_u32(&mut self) -> u32;
         fn rand_u64(&mut self) -> u64;
-        fn rand_p(&mut self, blob: Box<_>, bytes: i32);
+        //fn rand_p(&mut self, blob: *mut [u32], bytes: usize);
     }
     impl XorshiftTrait for Xorshift {
         fn reseed(&mut self, seed: u32) {
-            let x = 0x498b3bc5 ^ seed;
-            let y = 0;
-            let z = 0;
+            let mut x = 0x498b3bc5 ^ (seed >> 0);
+            let mut y = 0x5a05089a ^ (seed >> 2);
+            let mut z = 0;
+            let mut w = 0;
             for i in 0..10 {
-                self.mix();
+                let t: u32 = x ^ (x << 11);
+                x = y;
+                y = z;
+                z = w;
+                w = w ^ (w >> 19) ^ t ^ (t >> 8); 
             }
         }
         
-        fn mix(&mut self) {
-            let t: u32 = self.x ^ (self.x << 11);
-            let x = self.x;
-            let y = self.x;
-            let z = self.w;
-            let w = self.w ^ (self.w >> 19) ^ t ^ (t >> 8);
-        }
         fn reseed_u64(&mut self, seed: u64) {
-            let x = 0x498b3bc5 ^ (seed >> 0 as u8 as u32);
-            let y = 0x5a05089a ^ (seed >> 32 as u8 as u32);
-            let z = 0;
-            let w = 0;
+            let mut x = 0x498b3bc5 ^ (seed >> 0 as u8 as u32);
+            let mut y = 0x5a05089a ^ (seed >> 32 as u8 as u32);
+            let mut z = 0;
+            let mut w = 0;
             for i in 0..10 {
-                self.mix();
+                let t: u64 = x ^ (x << 11);
+                x= y;
+                y = z;
+                z = w;
+                w = w ^ (w >> 19) ^ t ^ (t >> 8);
             }
         }
         fn rand_u32(&mut self) -> u32 {
-            self.mix();
-            return self.x;
+            let t: u32 = self.x ^ (self.x << 11);
+            let x = self.y;
+            let y = self.z;
+            let z = self.w;
+            let w = self.w ^ (self.w >> 19) ^ t ^ (t >> 8);
+            return x;
         }
         fn rand_u64(&mut self) -> u64 {
-            self.mix();
-            let mut a: u64 = self.x.into();
-            let mut b: u64 = self.y.into();
+            let x = self.y;
+            let y = self.z;
+            let a: u64 = x.into();
+            let b: u64 = y.into();
             return (a << 32) | b
         }
         /*
-        fn rand_p(&mut self, blob: &[], mut bytes: i32) {
-            let mut blocks = blob as &[u8] as &[u32];
+        fn rand_p(&mut self, blob: *mut [u32], mut bytes: usize) {
+            let mut blocks = blob;
             let mut i: usize = 0;
             while bytes >= 4 {
-                blocks[0] = self.rand_u32();
-                blocks[i += 1];
+                unsafe {
+                    blocks.offset(0) = self.rand_u32();
+                    blocks.add(1);
+                }
                 bytes -= 4;
             }
-            
+            let mut tail = blocks as *mut [u8]; 
+            for i in 0..bytes {
+                unsafe {
+                    tail.add(i).write(self.rand_u32());
+                }
+            }
         }
         */
     }
